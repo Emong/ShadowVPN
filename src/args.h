@@ -47,6 +47,7 @@ typedef struct {
   const char *password;
   const char *server;
   uint16_t port;
+  uint16_t localport;
   uint16_t mtu;
   uint16_t concurrency;
 

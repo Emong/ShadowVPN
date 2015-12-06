@@ -312,6 +312,20 @@ int vpn_udp_alloc(int if_bind, const char *host, int port,
       return -1;
     }
   }
+  // for client mode bind localport
+  else if (args->localport != 0)
+  {
+    struct sockaddr_in local_addr;
+    local_addr.sin_port = htons(args->localport);
+    local_addr.sin_addr.s_addr = INADDR_ANY;
+    if (0 != bind(sock, (struct sockaddr *)&local_addr, sizeof(local_addr)))
+    {
+      err("local_bind");
+      errf("can not bind %s:%d", host, port);
+      close(sock);
+      return -1;
+    }
+  }
   freeaddrinfo(res);
 
 #ifndef TARGET_WIN32
