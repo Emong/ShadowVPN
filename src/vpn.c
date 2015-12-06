@@ -322,10 +322,11 @@ int vpn_udp_alloc(int if_bind, const char *host, int port, int localport,
     if (0 != bind(sock, (struct sockaddr *)&local_addr, sizeof(local_addr)))
     {
       err("local_bind");
-      errf("can not bind %s:%d", host, port);
+      errf("can not bind %d", localport);
       close(sock);
       return -1;
     }
+    errf("localport: %d", localport);
   }
   freeaddrinfo(res);
 

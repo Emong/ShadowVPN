@@ -178,7 +178,6 @@ static int process_key_value(shadowvpn_args_t *args, const char *key,
       return -1;
     }
   }
-  args->localport = 0;
   if (strcmp("server", key) == 0) {
     args->server = strdup(value);
   } else if (strcmp("port", key) == 0) {
