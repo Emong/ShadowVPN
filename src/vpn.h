@@ -67,7 +67,7 @@ int vpn_stop(vpn_ctx_t *ctx);
 #ifndef TARGET_WIN32
 int vpn_tun_alloc(const char *dev);
 #endif
-int vpn_udp_alloc(int if_bind, const char *host, int port,
+int vpn_udp_alloc(int if_bind, const char *host, int port, int localport,
                   struct sockaddr *addr, socklen_t* addrlen);
 
 #endif

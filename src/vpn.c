@@ -270,7 +270,7 @@ static int tun_read(int tun_fd, char *buf, size_t len) {
 }
 #endif
 
-int vpn_udp_alloc(int if_bind, const char *host, int port,
+int vpn_udp_alloc(int if_bind, const char *host, int port, int localport,
                   struct sockaddr *addr, socklen_t* addrlen) {
   struct addrinfo hints;
   struct addrinfo *res;
@@ -313,10 +313,11 @@ int vpn_udp_alloc(int if_bind, const char *host, int port,
     }
   }
   // for client mode bind localport
-  else if (args->localport != 0)
+  else if (localport != 0)
   {
     struct sockaddr_in local_addr;
-    local_addr.sin_port = htons(args->localport);
+    memset(&local_addr, 0, sizeof(local_addr));
+    local_addr.sin_port = htons(localport);
     local_addr.sin_addr.s_addr = INADDR_ANY;
     if (0 != bind(sock, (struct sockaddr *)&local_addr, sizeof(local_addr)))
     {
@@ -387,6 +388,7 @@ int vpn_ctx_init(vpn_ctx_t *ctx, shadowvpn_args_t *args) {
 #else
   if (-1 == (ctx->control_fd = vpn_udp_alloc(1, TUN_DELEGATE_ADDR,
                                              args->tun_port + 1,
+                                             args->localport,
                                              &ctx->control_addr,
                                              &ctx->control_addrlen))) {
     err("failed to create control socket");
@@ -407,7 +409,7 @@ int vpn_ctx_init(vpn_ctx_t *ctx, shadowvpn_args_t *args) {
   for (i = 0; i < ctx->nsock; i++) {
     int *sock = ctx->socks + i;
     if (-1 == (*sock = vpn_udp_alloc(args->mode == SHADOWVPN_MODE_SERVER,
-                                     args->server, args->port,
+                                     args->server, args->port, args->localport,
                                      ctx->remote_addrp,
                                      &ctx->remote_addrlen))) {
       errf("failed to create UDP socket");
@@ -642,7 +644,7 @@ int vpn_stop(vpn_ctx_t *ctx) {
   int send_sock;
   struct sockaddr addr;
   socklen_t addrlen;
-  if (-1 == (send_sock = vpn_udp_alloc(0, TUN_DELEGATE_ADDR, 0, &addr,
+  if (-1 == (send_sock = vpn_udp_alloc(0, TUN_DELEGATE_ADDR, 0, args->localport, &addr,
                                        &addrlen))) {
     errf("failed to init control socket");
     return -1;
